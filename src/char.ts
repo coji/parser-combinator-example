@@ -12,3 +12,15 @@ export const char: CharFunc = (c) => (input) => {
     rest: r.rest
   }
 }
+
+type isFunc = <T extends string>(f: (c: ParserInput[0]) => c is T) => Parser<T>
+export const is: isFunc = (f) => (input) => {
+  const r = anyChar(input)
+  if (r.result === 'fail') return r
+  if (!f(r.data)) return { result: 'fail' }
+  return {
+    result: 'success',
+    data: r.data,
+    rest: r.rest
+  }
+}

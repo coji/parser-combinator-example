@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { not, or, cat } from './combinators'
+import { not, or, cat, rep } from './combinators'
 import { char } from './char'
 import type { ParserOutput } from './types'
 
@@ -165,6 +165,136 @@ describe('cat()', () => {
         const output = parser(input)
         expect(output).toEqual<ParserOutput<['a', 'b']>>({
           result: 'fail'
+        })
+      })
+    })
+  })
+})
+
+describe('rep()', () => {
+  describe('rep(char("a"))', () => {
+    const parser = rep(char('a'))
+
+    test('Empty input', () => {
+      const input = [] as const
+      const output = parser(input)
+      expect(output).toEqual<ParserOutput<'a'[]>>({
+        result: 'success',
+        data: [],
+        rest: []
+      })
+    })
+
+    test('Input "a"', () => {
+      const input = [...'a']
+      const output = parser(input)
+      expect(output).toEqual<ParserOutput<'a'[]>>({
+        result: 'success',
+        data: ['a'],
+        rest: []
+      })
+    })
+
+    test('Input "aa"', () => {
+      const input = [...'aa']
+      const output = parser(input)
+      expect(output).toEqual<ParserOutput<'a'[]>>({
+        result: 'success',
+        data: ['a', 'a'],
+        rest: []
+      })
+    })
+
+    test('Input "aab"', () => {
+      const input = [...'aab']
+      const output = parser(input)
+      expect(output).toEqual<ParserOutput<'a'[]>>({
+        result: 'success',
+        data: ['a', 'a'],
+        rest: ['b']
+      })
+    })
+  })
+
+  describe('rep(char("a"), 1)', () => {
+    const parser = rep(char('a'), 1)
+
+    test('Empty input', () => {
+      const input = [] as const
+      const output = parser(input)
+      expect(output).toEqual<ParserOutput<'a'[]>>({
+        result: 'fail'
+      })
+    })
+
+    test('Input "a"', () => {
+      const input = [...'a']
+      const output = parser(input)
+      expect(output).toEqual<ParserOutput<'a'[]>>({
+        result: 'success',
+        data: ['a'],
+        rest: []
+      })
+    })
+
+    test('Input "aa"', () => {
+      const input = [...'aa']
+      const output = parser(input)
+      expect(output).toEqual<ParserOutput<'a'[]>>({
+        result: 'success',
+        data: ['a', 'a'],
+        rest: []
+      })
+    })
+
+    test('Input "aab"', () => {
+      const input = [...'aab']
+      const output = parser(input)
+      expect(output).toEqual<ParserOutput<'a'[]>>({
+        result: 'success',
+        data: ['a', 'a'],
+        rest: [...'b']
+      })
+    })
+
+    describe('rep(char("a"), 1, 2)', () => {
+      const parser = rep(char('a'), 1, 2)
+
+      test('Empty input', () => {
+        const input = [] as const
+        const output = parser(input)
+        expect(output).toEqual<ParserOutput<'a'[]>>({
+          result: 'fail'
+        })
+      })
+
+      test('Input "a"', () => {
+        const input = [...'a']
+        const output = parser(input)
+        expect(output).toEqual<ParserOutput<'a'[]>>({
+          result: 'success',
+          data: ['a'],
+          rest: []
+        })
+      })
+
+      test('Input "aa"', () => {
+        const input = [...'aa']
+        const output = parser(input)
+        expect(output).toEqual<ParserOutput<'a'[]>>({
+          result: 'success',
+          data: ['a', 'a'],
+          rest: []
+        })
+      })
+
+      test('Input "aaa"', () => {
+        const input = [...'aaa']
+        const output = parser(input)
+        expect(output).toEqual<ParserOutput<'a'[]>>({
+          result: 'success',
+          data: ['a', 'a'],
+          rest: [...'a']
         })
       })
     })

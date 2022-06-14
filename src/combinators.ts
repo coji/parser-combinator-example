@@ -36,3 +36,27 @@ export const cat: CatFunc = (ps) => (input) => {
     rest: i
   }
 }
+
+type RepFunc = <T>(p: Parser<T>, min?: number, max?: number) => Parser<T[]>
+export const rep: RepFunc =
+  (p, min = 0, max = Number.POSITIVE_INFINITY) =>
+  (input) => {
+    if (min > max) throw new Error('rep: min > max is not allowed')
+    if (min < 0) throw new Error('rep: negative min is not allowed')
+    if (max < 0) throw new Error('rep: negative max is not allowed')
+
+    const rs: ParserData<typeof p>[] = []
+    let i = input
+    for (let n = 0; n < max; n++) {
+      const r = p(i)
+      if (r.result === 'fail') break
+      rs.push(r.data)
+      i = r.rest
+    }
+    if (rs.length < min) return { result: 'fail' }
+    return {
+      result: 'success',
+      data: rs,
+      rest: i
+    }
+  }
